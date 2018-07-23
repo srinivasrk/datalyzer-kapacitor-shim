@@ -40,8 +40,10 @@ module.exports.getFromKapacitor = function(generator, measurement, dateRange){
             // seriesGaps is a temp container to hold gaps which we push to finalOutput
             // gapdata is a array with 2 items [<time>, <elapsed>]
             let diffDays = parseInt((today - new Date(gapData[0])) / (1000 * 60 * 60 * 24))
+            // the daterange is a string witnh 120d / 60d / 30d so we need to remove the 'd' and parse it as int
+            dateRange = dateRange.toString().replace( /d/g, '')
             dateRange = parseInt(dateRange)
-            
+
             if(series.tags.generator == generator && diffDays <= dateRange){
               //only push the result if the generator matches with the request object
 
