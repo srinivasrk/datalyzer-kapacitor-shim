@@ -1,10 +1,26 @@
 let fetch = require("node-fetch");
 let _ = require('underscore');
+let server = ""
+let port = ""
+if(! process.env.DATALYZER_KAPACITOR_IP){
+  console.log("Kapacitor IP not set in environment variables")
+  process.exit(0)
+} else {
+  server = process.env.DATALYZER_KAPACITOR_IP
+}
+
+if(! process.env.DATALYZER_KAPACITOR_PORT){
+  console.log("Kapacitor Port not set in environment variables")
+  process.exit(0)
+} else {
+  port = process.env.DATALYZER_KAPACITOR_PORT
+}
+
 
 // make this function generic and accept generator, measurement and date params
 module.exports.getFromKapacitor = function(){
   return new Promise(function(resolve, reject){
-    fetch('http://159.203.167.38:9092/kapacitor/v1/tasks/get-gaps/flow/gaps')
+    fetch(`http://${server}:${port}/kapacitor/v1/tasks/get-gaps/flow/gaps`)
     .then((res) => res.json())
     .then(function(responseObj) {
       // let finalOutput be an array of objects which has all the gaps
