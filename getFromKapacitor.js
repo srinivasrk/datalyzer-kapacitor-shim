@@ -25,6 +25,9 @@ module.exports.getFromKapacitor = function(generator, measurement, dateRange){
     .then(function(responseObj) {
       // let finalOutput be an array of objects which has all the gaps
       let finalOutput = []
+      //save the current date so that we can find the difference to get the daterange param equal to the request
+      //series.gapTime - currentDate <= dateRange
+      let today = new Date()
       //series the first property of the responseObj which has 'n' json objects
       //{series : [{},{},{}]}
       _.each(responseObj.series, (series) => {
@@ -36,7 +39,12 @@ module.exports.getFromKapacitor = function(generator, measurement, dateRange){
           _.each(series.values, (gapData) => {
             // seriesGaps is a temp container to hold gaps which we push to finalOutput
             // gapdata is a array with 2 items [<time>, <elapsed>]
-            if(series.tags.generator = generator){
+            let diffDays = parseInt((today - new Date(gapData[0])) / (1000 * 60 * 60 * 24))
+            dateRange = parseInt(dateRange)
+            
+            if(series.tags.generator == generator && diffDays <= dateRange){
+              //only push the result if the generator matches with the request object
+
               let seriesGaps = {}
               seriesGaps['elapsed'] = gapData[1]
               seriesGaps['time'] = gapData[0]
