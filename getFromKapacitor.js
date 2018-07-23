@@ -18,9 +18,9 @@ if(! process.env.DATALYZER_KAPACITOR_PORT){
 
 
 // make this function generic and accept generator, measurement and date params
-module.exports.getFromKapacitor = function(){
+module.exports.getFromKapacitor = function(generator, measurement, dateRange){
   return new Promise(function(resolve, reject){
-    fetch(`http://${server}:${port}/kapacitor/v1/tasks/get-gaps/flow/gaps`)
+    fetch(`http://${server}:${port}/kapacitor/v1/tasks/get-gaps/${measurement}/gaps`)
     .then((res) => res.json())
     .then(function(responseObj) {
       // let finalOutput be an array of objects which has all the gaps
@@ -28,7 +28,6 @@ module.exports.getFromKapacitor = function(){
       //series the first property of the responseObj which has 'n' json objects
       //{series : [{},{},{}]}
       _.each(responseObj.series, (series) => {
-
         // get each series
         // each series has name and tags attribute, the series which has gaps has name, tags, columns and values
         // check if the series object has values attribute if so there is atleast one gap then we will parse in
@@ -37,15 +36,18 @@ module.exports.getFromKapacitor = function(){
           _.each(series.values, (gapData) => {
             // seriesGaps is a temp container to hold gaps which we push to finalOutput
             // gapdata is a array with 2 items [<time>, <elapsed>]
-            let seriesGaps = {}
-            seriesGaps['elapsed'] = gapData[1]
-            seriesGaps['time'] = gapData[0]
-            seriesGaps['generator'] = series.tags.generator
-            seriesGaps['number'] = series.tags.number
-            seriesGaps['site'] = series.tags.site
-            seriesGaps['units'] = series.tags.units
-            seriesGaps['location'] = series.tags.location
-            finalOutput.push(seriesGaps)
+            if(series.tags.generator = generator){
+              let seriesGaps = {}
+              seriesGaps['elapsed'] = gapData[1]
+              seriesGaps['time'] = gapData[0]
+              seriesGaps['generator'] = series.tags.generator
+              seriesGaps['number'] = series.tags.number
+              seriesGaps['site'] = series.tags.site
+              seriesGaps['units'] = series.tags.units
+              seriesGaps['location'] = series.tags.location
+              seriesGaps['measurement'] = series.name
+              finalOutput.push(seriesGaps)
+            }
           })
         }
       })
