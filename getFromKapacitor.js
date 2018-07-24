@@ -46,7 +46,6 @@ module.exports.getFromKapacitor = function(generator, measurement, dateRange){
 
             if(series.tags.generator == generator && diffDays <= dateRange){
               //only push the result if the generator matches with the request object
-
               let seriesGaps = {}
               seriesGaps['elapsed'] = gapData[1]
               seriesGaps['time'] = gapData[0]
@@ -54,7 +53,8 @@ module.exports.getFromKapacitor = function(generator, measurement, dateRange){
               seriesGaps['number'] = series.tags.number
               seriesGaps['site'] = series.tags.site
               seriesGaps['units'] = series.tags.units
-              seriesGaps['location'] = series.tags.location
+              seriesGaps['location'] = series.tags.location? series.tags.location : ''
+              seriesGaps['method'] = series.tags.method? series.tags.method : ''
               seriesGaps['measurement'] = series.name
               finalOutput.push(seriesGaps)
             }
